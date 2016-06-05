@@ -11,20 +11,20 @@ import com.appspace.evytinkadmin.R;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class FirstActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment {
 
-    public FirstActivityFragment() {
+    public MainActivityFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_first, container, false);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
         initInstances(view);
-
         return view;
     }
 
     private void initInstances(View view) {
+
     }
 }
