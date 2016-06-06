@@ -15,6 +15,7 @@ import com.appspace.evytinkadmin.R;
 import com.appspace.evytinkadmin.activity.barcode.BarcodeCaptureActivity;
 import com.appspace.evytinkadmin.fragment.MainActivityFragment;
 import com.appspace.evytinkadmin.util.DataStoreUtils;
+import com.appspace.evytinkadmin.util.Helper;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 
@@ -107,8 +108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment);
         String evid = DataStoreUtils.getInstance().getAppUserId();
-        String url = "http://evbt.azurewebsites.net/docs/page/theme/evytinkbarcodeadmin.aspx"
-                + "?evid=" + evid + "&evbarcodeid=" + barcode;
+        String url = Helper.webUrl(evid, barcode);
         fragment.loadUrl(url);
     }
 

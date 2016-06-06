@@ -10,6 +10,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.appspace.evytinkadmin.R;
+import com.appspace.evytinkadmin.util.Helper;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -34,6 +35,7 @@ public class MainActivityFragment extends Fragment {
         wvMain = (WebView) view.findViewById(R.id.wvMain);
         WebSettings webSettings = wvMain.getSettings();
         webSettings.setJavaScriptEnabled(true);
+        loadUrl(Helper.webUrl());
     }
 
     public void loadUrl(String url) {
