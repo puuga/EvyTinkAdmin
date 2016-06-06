@@ -7,6 +7,8 @@ import android.support.multidex.MultiDex;
 import com.appspace.appspacelibrary.manager.Contextor;
 import com.appspace.appspacelibrary.util.LoggerUtils;
 import com.crashlytics.android.Crashlytics;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -20,6 +22,9 @@ public class EvyTinkAdminApplication extends Application {
         super.onCreate();
 
         Fabric.with(this, new Crashlytics());
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
 
         // Init
         Contextor.getInstance().init(getApplicationContext());

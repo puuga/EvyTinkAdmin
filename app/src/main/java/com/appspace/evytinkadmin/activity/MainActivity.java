@@ -6,12 +6,15 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.appspace.appspacelibrary.util.LoggerUtils;
 import com.appspace.evytinkadmin.R;
 import com.appspace.evytinkadmin.activity.barcode.BarcodeCaptureActivity;
+import com.appspace.evytinkadmin.fragment.MainActivityFragment;
+import com.appspace.evytinkadmin.util.DataStoreUtils;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 
@@ -20,7 +23,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int RC_BARCODE_CAPTURE = 9001;
     private static final String TAG = "MemberCardActivity";
 
-    private TextView tvBarcode;
     private FloatingActionButton fab;
 
     @Override
@@ -38,7 +40,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fab = (FloatingActionButton) findViewById(R.id.fab);
         assert fab != null;
         fab.setOnClickListener(this);
-        tvBarcode = (TextView) findViewById(R.id.tvBarcode);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_logout:
+                gotoLoginActivity();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -78,9 +101,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivityForResult(intent, RC_BARCODE_CAPTURE);
     }
 
-    private void showBarcodeOnTextView(String text) {
-        tvBarcode.setText(text);
-        Snackbar.make(fab, "Barcode OK", Snackbar.LENGTH_LONG)
+    private void showBarcodeOnTextView(String barcode) {
+        Snackbar.make(fab, "Barcode: " + barcode, Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+        MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment);
+        String evid = DataStoreUtils.getInstance().getAppUserId();
+        String url = "http://evbt.azurewebsites.net/docs/page/theme/evytinkbarcodeadmin.aspx"
+                + "?evid=" + evid + "&evbarcodeid=" + barcode;
+        fragment.loadUrl(url);
     }
+
+    protected void gotoLoginActivity() {
+        Intent i = new Intent(MainActivity.this, LoginActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
+
+        // close this activity
+        finish();
+    }
+
 }
