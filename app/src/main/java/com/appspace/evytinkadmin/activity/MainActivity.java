@@ -10,14 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.appspace.appspacelibrary.util.LoggerUtils;
 import com.appspace.evytinkadmin.R;
-import com.appspace.evytinkadmin.activity.barcode.BarcodeCaptureActivity;
 import com.appspace.evytinkadmin.fragment.MainActivityFragment;
 import com.appspace.evytinkadmin.util.DataStoreUtils;
 import com.appspace.evytinkadmin.util.Helper;
-import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.vision.barcode.Barcode;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -68,16 +66,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_BARCODE_CAPTURE) {
-            if (resultCode == CommonStatusCodes.SUCCESS) {
-                if (data != null) {
-                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
-                    LoggerUtils.log2D(TAG, "Barcode read: " + barcode.displayValue);
-                    showBarcodeOnTextView(barcode.displayValue);
+//            if (resultCode == CommonStatusCodes.SUCCESS) {
+//                if (data != null) {
+//                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
+//                    LoggerUtils.log2D(TAG, "Barcode read: " + barcode.displayValue);
+//                    showBarcodeOnTextView(barcode.displayValue);
+//                } else {
+//                    LoggerUtils.log2D(TAG, "No barcode captured, intent data is null");
+//                }
+//            } else {
+//                LoggerUtils.log2D(TAG, "barcode error");
+//            }
+        } else if (requestCode == IntentIntegrator.REQUEST_CODE) {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if(result != null) {
+                if(result.getContents() == null) {
+                    showBarcodeOnTextView("");
                 } else {
-                    LoggerUtils.log2D(TAG, "No barcode captured, intent data is null");
+                    showBarcodeOnTextView(result.getContents());
                 }
-            } else {
-                LoggerUtils.log2D(TAG, "barcode error");
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -88,27 +95,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fab:
-                launchBarcodeActivity();
+                launchBarcodeActivityV2();
                 break;
         }
     }
 
-    private void launchBarcodeActivity() {
-        LoggerUtils.log2D(TAG, "Scan Barcode");
-        Intent intent = new Intent(this, BarcodeCaptureActivity.class);
-        intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
-        intent.putExtra(BarcodeCaptureActivity.UseFlash, false);
-
-        startActivityForResult(intent, RC_BARCODE_CAPTURE);
+    private void launchBarcodeActivityV2() {
+        new IntentIntegrator(this).initiateScan();
     }
 
     private void showBarcodeOnTextView(String barcode) {
-        Snackbar.make(fab, "Barcode: " + barcode, Snackbar.LENGTH_LONG)
+        String text;
+        if (barcode.equals("")) {
+            text = "Cancelled";
+        } else {
+            text = "Barcode: " + barcode;
+        }
+        Snackbar.make(fab, text, Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+
+        if (barcode.equals("")) {
+            return;
+        }
         MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment);
-        String evid = DataStoreUtils.getInstance().getAppUserId();
-        String url = Helper.webUrl(evid, barcode);
+        String id = DataStoreUtils.getInstance().getAppUserId();
+        String url = Helper.webUrl(id, barcode);
         fragment.loadUrl(url);
     }
 
